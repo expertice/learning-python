@@ -24,7 +24,21 @@ def shuffle_field():
     :return: list with 16 randomly shuffled tiles,
     one of which is a empty space.
     """
-    pass
+    field = list(range(1, 17))
+    field[-1] = EMPTY_MARK
+
+    # random.shuffle(field)
+
+    total_moves = 100
+    possible_moves = list(MOVES.keys())
+    for move in range(total_moves):
+        random_move = random.choice(possible_moves)
+        try:
+            field = perform_move(field, random_move)
+        except IndexError:
+            continue
+
+    return field
 
 
 def print_field(field):
@@ -33,7 +47,9 @@ def print_field(field):
     :param field: current field state to be printed.
     :return: None
     """
-    pass
+    for i in range(0, 16, 4):
+        print(field[i:i+4])
+    print('\n')
 
 
 def is_game_finished(field):
@@ -42,7 +58,9 @@ def is_game_finished(field):
     :param field: current field state.
     :return: True if the game is finished, False otherwise.
     """
-    pass
+    ideal = list(range(0, 16))
+    ideal.append(EMPTY_MARK)
+    return ideal == field
 
 
 def perform_move(field, key):
@@ -51,9 +69,26 @@ def perform_move(field, key):
     :param field: current field state.
     :param key: move direction.
     :return: new field state (after the move).
-    :raises: IndexError if the move can't me done.
+    :raises: IndexError if the move can't be done.
     """
-    pass
+    current_position = field.index(EMPTY_MARK)
+
+    if key == 's' and current_position >= 12:
+        raise IndexError("Can't move down")
+
+    if key == 'd' and current_position % 4 == 3:
+        raise IndexError("Can't move right")
+
+    if key == 'w' and current_position < 4:
+        raise IndexError("Can't move up")
+
+    if key == 'a' and current_position % 4 == 0:
+        raise IndexError("Can't move left")
+
+    delta = MOVES[key]
+    field[current_position], field[current_position + delta] = field[current_position + delta], field[current_position]
+
+    return field
 
 
 def handle_user_input():
@@ -65,7 +100,10 @@ def handle_user_input():
         'd' - right
     :return: <str> current move.
     """
-    pass
+    while True:
+        user_move = input("Please, select your move: ")
+        if user_move in MOVES.keys():
+            return user_move
 
 
 def main():
@@ -74,7 +112,16 @@ def main():
     It also calls other methods.
     :return: None
     """
-    pass
+    field = shuffle_field()
+    while not is_game_finished(field):
+        try:
+            print_field(field)
+            move = handle_user_input()
+            field = perform_move(field, move)
+        except IndexError as e:
+            print(e)
+
+    print("Game is finished")
 
 
 if __name__ == '__main__':
